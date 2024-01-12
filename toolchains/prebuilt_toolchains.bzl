@@ -70,8 +70,8 @@ def prebuilt_toolchains(cmake_version, ninja_version, register_toolchains):
         ninja_version (string): The target ninja-build version
         register_toolchains (boolean): Whether to call native.register_toolchains or not
     """
-    _cmake_toolchains(cmake_version, register_toolchains)
-    _ninja_toolchains(ninja_version, register_toolchains)
+    cmake_toolchains(cmake_version, register_toolchains)
+    ninja_toolchains(ninja_version, register_toolchains)
 
 def _cmake_toolchains(version, register_toolchains):
     if "3.29.5" == version:

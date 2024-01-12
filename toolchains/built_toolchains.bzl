@@ -47,12 +47,12 @@ def built_toolchains(cmake_version, make_version, ninja_version, meson_version, 
         register_built_pkgconfig_toolchain: If true, the built pkgconfig toolchain will be registered.
     """
     _cmake_toolchain(cmake_version, register_toolchains)
-    _make_toolchain(make_version, register_toolchains)
+    make_toolchain(make_version, register_toolchains)
     _ninja_toolchain(ninja_version, register_toolchains)
-    _meson_toolchain(meson_version, register_toolchains)
+    meson_toolchain(meson_version, register_toolchains)
 
     if register_built_pkgconfig_toolchain:
-        _pkgconfig_toolchain(pkgconfig_version, register_toolchains)
+        pkgconfig_toolchain(pkgconfig_version, register_toolchains)
 
 def _cmake_toolchain(version, register_toolchains):
     if register_toolchains:
@@ -80,7 +80,7 @@ def _cmake_toolchain(version, register_toolchains):
 
     fail("Unsupported cmake version: " + str(version))
 
-def _make_toolchain(version, register_toolchains):
+def make_toolchain(version, register_toolchains):
     if register_toolchains:
         native.register_toolchains(
             "@rules_foreign_cc//toolchains:built_make_toolchain",
@@ -203,7 +203,7 @@ def _ninja_toolchain(version, register_toolchains):
 
     fail("Unsupported ninja version: " + str(version))
 
-def _meson_toolchain(version, register_toolchains):
+def meson_toolchain(version, register_toolchains):
     if register_toolchains:
         native.register_toolchains(
             "@rules_foreign_cc//toolchains:built_meson_toolchain",
@@ -237,7 +237,7 @@ def _meson_toolchain(version, register_toolchains):
 
     fail("Unsupported meson version: " + str(version))
 
-def _pkgconfig_toolchain(version, register_toolchains):
+def pkgconfig_toolchain(version, register_toolchains):
     if register_toolchains:
         native.register_toolchains(
             "@rules_foreign_cc//toolchains:built_pkgconfig_toolchain",

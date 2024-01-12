@@ -5,15 +5,21 @@ load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 load("//foreign_cc/private/framework:toolchain.bzl", "register_framework_toolchains")
 load("//toolchains:toolchains.bzl", "built_toolchains", "prebuilt_toolchains", "preinstalled_toolchains")
 
+DEFAULT_CMAKE_VERSION = "3.23.2"
+DEFAULT_MAKE_VERSION = "4.4.1"
+DEFAULT_MESON_VERSION = "1.1.1"
+DEFAULT_NINJA_VERSION = "1.12.1"
+DEFAULT_PKGCONFIG_VERSION = "0.29.2"
+
 # buildifier: disable=unnamed-macro
 def rules_foreign_cc_dependencies(
         native_tools_toolchains = [],
         register_default_tools = True,
-        cmake_version = "3.23.2",
-        make_version = "4.4.1",
-        ninja_version = "1.12.1",
-        meson_version = "1.1.1",
-        pkgconfig_version = "0.29.2",
+        cmake_version = DEFAULT_CMAKE_VERSION,
+        make_version = DEFAULT_MAKE_VERSION,
+        ninja_version = DEFAULT_NINJA_VERSION,
+        meson_version = DEFAULT_MESON_VERSION,
+        pkgconfig_version = DEFAULT_PKGCONFIG_VERSION,
         register_preinstalled_tools = True,
         register_built_tools = True,
         register_toolchains = True,

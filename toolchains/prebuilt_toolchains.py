@@ -289,13 +289,13 @@ def prebuilt_toolchains(cmake_version, ninja_version, register_toolchains):
         ninja_version (string): The target ninja-build version
         register_toolchains (boolean): Whether to call native.register_toolchains or not
     \"\"\"
-    _cmake_toolchains(cmake_version, register_toolchains)
-    _ninja_toolchains(ninja_version, register_toolchains)
+    cmake_toolchains(cmake_version, register_toolchains)
+    ninja_toolchains(ninja_version, register_toolchains)
 
-def _cmake_toolchains(version, register_toolchains):
+def cmake_toolchains(version, register_toolchains):
 {cmake_definitions}
 
-def _ninja_toolchains(version, register_toolchains):
+def ninja_toolchains(version, register_toolchains):
 {ninja_definitions}
 """
 
@@ -314,7 +314,7 @@ def get_cmake_definitions() -> str:
     """Define a set of repositories and calls for registering `cmake` toolchains
 
     Returns:
-        str: The Implementation of `_cmake_toolchains`
+        str: The Implementation of `cmake_toolchains`
     """
 
     archives = []
@@ -433,7 +433,7 @@ def get_ninja_definitions() -> str:
     """Define a set of repositories and calls for registering `ninja` toolchains
 
     Returns:
-        str: The Implementation of `_ninja_toolchains`
+        str: The Implementation of `ninja_toolchains`
     """
 
     archives = []
