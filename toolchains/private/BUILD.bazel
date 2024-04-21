@@ -4,6 +4,10 @@ package(default_visibility = ["//visibility:public"])
 
 native_tool_toolchain(
     name = "preinstalled_make",
+    env = select({
+        "@platforms//os:windows": {"MAKE": "make.exe"},
+        "//conditions:default": {"MAKE": "make"},
+    }),
     path = select({
         "@platforms//os:windows": "make.exe",
         "//conditions:default": "make",
