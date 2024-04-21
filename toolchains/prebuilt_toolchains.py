@@ -10,6 +10,7 @@ CMAKE_SHA256_URL_TEMPLATE = "https://cmake.org/files/v{minor}/cmake-{full}-SHA-2
 CMAKE_URL_TEMPLATE = "https://github.com/Kitware/CMake/releases/download/v{full}/{file}"
 
 CMAKE_VERSIONS = [
+    "3.29.2",
     "3.29.1",
     "3.29.0",
     "3.28.4",
@@ -202,13 +203,6 @@ maybe(
 )
 """
 
-REGISTER_TOOLCHAINS = """\
-if register_toolchains:
-    native.register_toolchains(
-{toolchains}
-    )
-"""
-
 BZL_FILE_TEMPLATE = """\
 \"\"\" A U T O G E N E R A T E D  -- D O   N O T   M O D I F Y
 @generated
@@ -273,21 +267,20 @@ native_tool_toolchain(
 \"\"\"
 
 # buildifier: disable=unnamed-macro
-def prebuilt_toolchains(cmake_version, ninja_version, register_toolchains):
+def prebuilt_toolchains(cmake_version, ninja_version):
     \"\"\"Register toolchains for pre-built cmake and ninja binaries
 
     Args:
         cmake_version (string): The target cmake version
         ninja_version (string): The target ninja-build version
-        register_toolchains (boolean): Whether to call native.register_toolchains or not
     \"\"\"
-    cmake_toolchains(cmake_version, register_toolchains)
-    ninja_toolchains(ninja_version, register_toolchains)
+    cmake_toolchains(cmake_version)
+    ninja_toolchains(ninja_version)
 
-def cmake_toolchains(version, register_toolchains):
+def cmake_toolchains(version):
 {cmake_definitions}
 
-def ninja_toolchains(version, register_toolchains):
+def ninja_toolchains(version):
 {ninja_definitions}
 """
 
@@ -390,25 +383,6 @@ def get_cmake_definitions() -> str:
             )
         )
 
-        archives.append(
-            indent(
-                REGISTER_TOOLCHAINS.format(
-                    toolchains="\n".join(
-                        [
-                            indent(
-                                '"@prebuilt_cmake_toolchains//:{}_toolchain",'.format(
-                                    repo
-                                ),
-                                " " * 8,
-                            )
-                            for repo in toolchains_repos
-                        ]
-                    )
-                ),
-                " " * 8,
-            )
-        )
-
         archives.extend(
             [
                 indent("return", " " * 8),
@@ -503,25 +477,6 @@ def get_ninja_definitions() -> str:
                         json.dumps(toolchains_repos, indent=4), " " * 4
                     ).lstrip(),
                     tool="ninja",
-                ),
-                " " * 8,
-            )
-        )
-
-        archives.append(
-            indent(
-                REGISTER_TOOLCHAINS.format(
-                    toolchains="\n".join(
-                        [
-                            indent(
-                                '"@prebuilt_ninja_toolchains//:{}_toolchain",'.format(
-                                    repo
-                                ),
-                                " " * 8,
-                            )
-                            for repo in toolchains_repos
-                        ]
-                    )
                 ),
                 " " * 8,
             )

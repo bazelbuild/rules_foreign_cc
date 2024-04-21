@@ -22,7 +22,6 @@ def rules_foreign_cc_dependencies(
         pkgconfig_version = DEFAULT_PKGCONFIG_VERSION,
         register_preinstalled_tools = True,
         register_built_tools = True,
-        register_toolchains = True,
         register_built_pkgconfig_toolchain = True):
     """Call this function from the WORKSPACE file to initialize rules_foreign_cc \
     dependencies and let neccesary code generation happen \
@@ -56,8 +55,6 @@ def rules_foreign_cc_dependencies(
 
         register_built_tools: If true, toolchains that build the tools from source are registered
 
-        register_toolchains: If true, registers the toolchains via native.register_toolchains. Used by bzlmod
-
         register_built_pkgconfig_toolchain: If true, the built pkgconfig toolchain will be registered. On Windows it may be preferrable to set this to False, as
             this requires the --enable_runfiles bazel option. Also note that building pkgconfig from source under bazel results in paths that are more
             than 256 characters long, which will not work on Windows unless the following options are added to the .bazelrc and symlinks are enabled in Windows.
@@ -67,13 +64,13 @@ def rules_foreign_cc_dependencies(
             startup --output_user_root=C:/b  -> This is required to keep paths as short as possible
     """
 
-    register_framework_toolchains(register_toolchains = register_toolchains)
+    register_framework_toolchains(register_toolchains = True)
 
-    if register_toolchains:
-        native.register_toolchains(*native_tools_toolchains)
+    native.register_toolchains(*native_tools_toolchains)
 
     if register_default_tools:
-        prebuilt_toolchains(cmake_version, ninja_version, register_toolchains)
+        prebuilt_toolchains(cmake_version, ninja_version)
+        native.register_toolchains("@prebuilt_cmake_toolchains//:all", "@prebuilt_ninja_toolchains//:all")
 
     if register_built_tools:
         built_toolchains(
@@ -82,7 +79,6 @@ def rules_foreign_cc_dependencies(
             ninja_version = ninja_version,
             meson_version = meson_version,
             pkgconfig_version = pkgconfig_version,
-            register_toolchains = register_toolchains,
             register_built_pkgconfig_toolchain = register_built_pkgconfig_toolchain,
         )
 
