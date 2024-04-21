@@ -23,15 +23,16 @@ use_repo(python, "python_3_9")
 tools = use_extension("@rules_foreign_cc//foreign_cc:extensions.bzl", "tools")
 use_repo(
     tools,
-    "cmake_src",
-    "gnumake_src",
-    "meson_src",
-    "ninja_build_src",
-    "pkgconfig_src",
+    "prebuilt_cmake_toolchains",
+    "prebuilt_ninja_toolchains",
     "rules_foreign_cc_framework_toolchains",
+    "toolchain_hub",
 )
 
 register_toolchains(
+    "@prebuilt_cmake_toolchains//:all",
+    "@prebuilt_ninja_toolchains//:all",
+    "@toolchain_hub//:all",
     "@rules_foreign_cc_framework_toolchains//:all",
     "@rules_foreign_cc//toolchains:all",
 )
