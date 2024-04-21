@@ -8,7 +8,7 @@ load("//toolchains:toolchains.bzl", "built_toolchains", "prebuilt_toolchains", "
 DEFAULT_CMAKE_VERSION = "3.23.2"
 DEFAULT_MAKE_VERSION = "4.4.1"
 DEFAULT_MESON_VERSION = "1.1.1"
-DEFAULT_NINJA_VERSION = "1.11.1"
+DEFAULT_NINJA_VERSION = "1.12.0"
 DEFAULT_PKGCONFIG_VERSION = "0.29.2"
 
 # buildifier: disable=unnamed-macro
