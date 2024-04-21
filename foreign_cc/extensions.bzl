@@ -1,8 +1,8 @@
 """Entry point for extensions used by bzlmod."""
 
 load("//foreign_cc:repositories.bzl", "DEFAULT_CMAKE_VERSION", "DEFAULT_MAKE_VERSION", "DEFAULT_MESON_VERSION", "DEFAULT_NINJA_VERSION", "DEFAULT_PKGCONFIG_VERSION")
-load("//foreign_cc/private/framework:toolchain.bzl", "register_framework_toolchains")
 load("//foreign_cc/private/bzlmod:toolchain_hub.bzl", "hub_repo")
+load("//foreign_cc/private/framework:toolchain.bzl", "register_framework_toolchains")
 load("//toolchains:built_toolchains.bzl", "make_toolchain", "meson_toolchain", "pkgconfig_toolchain", cmake_toolchains_src = "cmake_toolchain", ninja_toolchains_src = "ninja_toolchain")
 load("//toolchains:prebuilt_toolchains.bzl", "cmake_toolchains", "ninja_toolchains")
 
