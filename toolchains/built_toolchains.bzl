@@ -161,7 +161,7 @@ native_tool_toolchain(
 """
 
 # buildifier: disable=unnamed-macro
-def built_toolchains(cmake_version, make_version, ninja_version, meson_version, pkgconfig_version, register_toolchains, register_built_pkgconfig_toolchain):
+def built_toolchains(cmake_version, make_version, ninja_version, meson_version, pkgconfig_version, register_built_pkgconfig_toolchain):
     """
     Register toolchains for built tools that will be built from source
 
@@ -177,25 +177,18 @@ def built_toolchains(cmake_version, make_version, ninja_version, meson_version, 
 
         pkgconfig_version: The pkg-config version to build
 
-        register_toolchains: If true, registers the toolchains via native.register_toolchains. Used by bzlmod
-
         register_built_pkgconfig_toolchain: If true, the built pkgconfig toolchain will be registered.
     """
-    cmake_toolchain(cmake_version, register_toolchains)
-    make_toolchain(make_version, register_toolchains)
-    ninja_toolchain(ninja_version, register_toolchains)
-    meson_toolchain(meson_version, register_toolchains)
+    cmake_toolchain(cmake_version)
+    make_toolchain(make_version)
+    ninja_toolchain(ninja_version)
+    meson_toolchain(meson_version)
 
     if register_built_pkgconfig_toolchain:
-        pkgconfig_toolchain(pkgconfig_version, register_toolchains)
+        pkgconfig_toolchain(pkgconfig_version)
 
 # buildifier: disable=unnamed-macro
-def cmake_toolchain(version, register_toolchains):
-    if register_toolchains:
-        native.register_toolchains(
-            "@rules_foreign_cc//toolchains:built_cmake_toolchain",
-        )
-
+def cmake_toolchain(version):
     if _CMAKE_SRCS.get(version):
         cmake_meta = _CMAKE_SRCS[version]
         urls = cmake_meta[0]
@@ -217,12 +210,7 @@ def cmake_toolchain(version, register_toolchains):
     fail("Unsupported cmake version: " + str(version))
 
 # buildifier: disable=unnamed-macro
-def make_toolchain(version, register_toolchains):
-    if register_toolchains:
-        native.register_toolchains(
-            "@rules_foreign_cc//toolchains:built_make_toolchain",
-        )
-
+def make_toolchain(version):
     if version == "4.4.1":
         maybe(
             http_archive,
@@ -341,11 +329,7 @@ def ninja_toolchain(version, register_toolchains):
     fail("Unsupported ninja version: " + str(version))
 
 # buildifier: disable=unnamed-macro
-def meson_toolchain(version, register_toolchains):
-    if register_toolchains:
-        native.register_toolchains(
-            "@rules_foreign_cc//toolchains:built_meson_toolchain",
-        )
+def meson_toolchain(version):
     if version == "1.1.1":
         maybe(
             http_archive,
@@ -376,12 +360,7 @@ def meson_toolchain(version, register_toolchains):
     fail("Unsupported meson version: " + str(version))
 
 # buildifier: disable=unnamed-macro
-def pkgconfig_toolchain(version, register_toolchains):
-    if register_toolchains:
-        native.register_toolchains(
-            "@rules_foreign_cc//toolchains:built_pkgconfig_toolchain",
-        )
-
+def pkgconfig_toolchain(version):
     maybe(
         http_archive,
         name = "glib_dev",

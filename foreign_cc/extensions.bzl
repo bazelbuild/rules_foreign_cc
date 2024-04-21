@@ -39,8 +39,8 @@ def _init(module_ctx):
     for mod in module_ctx.modules:
         if mod.is_root:
             for toolchain in mod.tags.cmake:
-                cmake_toolchains(toolchain.version, register_toolchains = False)
-                cmake_toolchains_src(toolchain.version, register_toolchains = False)
+                cmake_toolchains(toolchain.version)
+                cmake_toolchains_src(toolchain.version)
 
                 toolchain_names.append("cmake_{}_from_src".format(toolchain.version))
                 toolchain_types.append("@rules_foreign_cc//toolchains:cmake_toolchain")
@@ -48,22 +48,22 @@ def _init(module_ctx):
                 cmake_registered = True
 
             for toolchain in mod.tags.make:
-                make_toolchain(toolchain.version, register_toolchains = False)
+                make_toolchain(toolchain.version)
                 toolchain_names.append("make_{}_from_src".format(toolchain.version))
                 toolchain_types.append("@rules_foreign_cc//toolchains:make_toolchain")
                 toolchain_target.append("@gnumake_{}_src//:built_make".format(toolchain.version))
                 make_registered = True
 
             for toolchain in mod.tags.meson:
-                meson_toolchain(toolchain.version, register_toolchains = False)
+                meson_toolchain(toolchain.version)
                 toolchain_names.append("meson_{}_from_src".format(toolchain.version))
                 toolchain_types.append("@rules_foreign_cc//toolchains:meson_toolchain")
                 toolchain_target.append("@meson_{}_src//:built_meson".format(toolchain.version))
                 meson_registered = True
 
             for toolchain in mod.tags.ninja:
-                ninja_toolchains(toolchain.version, register_toolchains = False)
-                ninja_toolchains_src(toolchain.version, register_toolchains = False)
+                ninja_toolchains(toolchain.version)
+                ninja_toolchains_src(toolchain.version)
 
                 toolchain_names.append("ninja_{}_from_src".format(toolchain.version))
                 toolchain_types.append("@rules_foreign_cc//toolchains:ninja_toolchain")
@@ -71,38 +71,38 @@ def _init(module_ctx):
                 ninja_registered = True
 
             for toolchain in mod.tags.pkgconfig:
-                pkgconfig_toolchain(toolchain.version, register_toolchains = False)
+                pkgconfig_toolchain(toolchain.version)
                 toolchain_names.append("pkgconfig_{}_from_src".format(toolchain.version))
                 toolchain_types.append("@rules_foreign_cc//toolchains:pkgconfig_toolchain")
                 toolchain_target.append("@pkgconfig_{}_src//:built_pkgconfig".format(toolchain.version))
                 pkgconfig_registered = True
 
     if not cmake_registered:
-        cmake_toolchains(DEFAULT_CMAKE_VERSION, register_toolchains = False)
-        cmake_toolchains_src(DEFAULT_CMAKE_VERSION, register_toolchains = False)
+        cmake_toolchains(DEFAULT_CMAKE_VERSION)
+        cmake_toolchains_src(DEFAULT_CMAKE_VERSION)
 
         toolchain_names.append("cmake_{}_from_src".format(DEFAULT_CMAKE_VERSION))
         toolchain_types.append("@rules_foreign_cc//toolchains:cmake_toolchain")
         toolchain_target.append("@cmake_{}_src//:built_cmake".format(DEFAULT_CMAKE_VERSION))
 
     if not make_registered:
-        make_toolchain(DEFAULT_MAKE_VERSION, register_toolchains = False)
+        make_toolchain(DEFAULT_MAKE_VERSION)
         toolchain_names.append("make_{}_from_src".format(DEFAULT_MAKE_VERSION))
         toolchain_types.append("@rules_foreign_cc//toolchains:make_toolchain")
         toolchain_target.append("@gnumake_{}_src//:built_make".format(DEFAULT_MAKE_VERSION))
     if not meson_registered:
-        meson_toolchain(DEFAULT_MESON_VERSION, register_toolchains = False)
+        meson_toolchain(DEFAULT_MESON_VERSION)
         toolchain_names.append("meson_{}_from_src".format(DEFAULT_MESON_VERSION))
         toolchain_types.append("@rules_foreign_cc//toolchains:meson_toolchain")
         toolchain_target.append("@meson_{}_src//:built_meson".format(DEFAULT_MESON_VERSION))
     if not ninja_registered:
-        ninja_toolchains(DEFAULT_NINJA_VERSION, register_toolchains = False)
-        ninja_toolchains_src(DEFAULT_NINJA_VERSION, register_toolchains = False)
+        ninja_toolchains(DEFAULT_NINJA_VERSION)
+        ninja_toolchains_src(DEFAULT_NINJA_VERSION)
         toolchain_names.append("ninja_{}_from_src".format(DEFAULT_NINJA_VERSION))
         toolchain_types.append("@rules_foreign_cc//toolchains:ninja_toolchain")
         toolchain_target.append("@ninja_{}_src//:built_ninja".format(DEFAULT_NINJA_VERSION))
     if not pkgconfig_registered:
-        pkgconfig_toolchain(DEFAULT_PKGCONFIG_VERSION, register_toolchains = False)
+        pkgconfig_toolchain(DEFAULT_PKGCONFIG_VERSION)
         toolchain_names.append("pkgconfig_{}_from_src".format(DEFAULT_PKGCONFIG_VERSION))
         toolchain_types.append("@rules_foreign_cc//toolchains:pkgconfig_toolchain")
         toolchain_target.append("@pkgconfig_{}_src//:built_pkgconfig".format(DEFAULT_PKGCONFIG_VERSION))
