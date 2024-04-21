@@ -30,9 +30,9 @@ use_repo(
 )
 
 register_toolchains(
+    "@rules_foreign_cc//toolchains:all",
+    "@toolchain_hub//:all",
     "@prebuilt_cmake_toolchains//:all",
     "@prebuilt_ninja_toolchains//:all",
-    "@toolchain_hub//:all",
     "@rules_foreign_cc_framework_toolchains//:all",
-    "@rules_foreign_cc//toolchains:all",
 )
