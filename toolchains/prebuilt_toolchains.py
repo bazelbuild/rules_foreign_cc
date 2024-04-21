@@ -380,7 +380,7 @@ def get_cmake_definitions() -> str:
         archives.append(
             indent(
                 TOOLCHAIN_REPO_DEFINITION.format(
-                    name="cmake_{}_toolchains".format(version),
+                    name="prebuilt_cmake_toolchains",
                     repos=indent(
                         json.dumps(toolchains_repos, indent=4), " " * 4
                     ).lstrip(),
@@ -396,8 +396,8 @@ def get_cmake_definitions() -> str:
                     toolchains="\n".join(
                         [
                             indent(
-                                '"@cmake_{}_toolchains//:{}_toolchain",'.format(
-                                    version, repo
+                                '"@prebuilt_cmake_toolchains//:{}_toolchain",'.format(
+                                    repo
                                 ),
                                 " " * 8,
                             )
@@ -498,7 +498,7 @@ def get_ninja_definitions() -> str:
         archives.append(
             indent(
                 TOOLCHAIN_REPO_DEFINITION.format(
-                    name="ninja_{}_toolchains".format(version),
+                    name="prebuilt_ninja_toolchains",
                     repos=indent(
                         json.dumps(toolchains_repos, indent=4), " " * 4
                     ).lstrip(),
@@ -514,8 +514,8 @@ def get_ninja_definitions() -> str:
                     toolchains="\n".join(
                         [
                             indent(
-                                '"@ninja_{}_toolchains//:{}_toolchain",'.format(
-                                    version, repo
+                                '"@prebuilt_ninja_toolchains//:{}_toolchain",'.format(
+                                    repo
                                 ),
                                 " " * 8,
                             )
