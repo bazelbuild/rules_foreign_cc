@@ -1,6 +1,6 @@
 """Entry point for extensions used by bzlmod."""
 
-load("//foreign_cc:repositories.bzl", "DEFAULT_CMAKE_VERSION", "DEFAULT_MAKE_VERSION", "DEFAULT_MESON_VERSION", "DEFAULT_NINJA_VERSION", "DEFAULT_PKGCONFIG_VERSION", "rules_foreign_cc_dependencies")
+load("//foreign_cc:repositories.bzl", "DEFAULT_CMAKE_VERSION", "DEFAULT_MAKE_VERSION", "DEFAULT_MESON_VERSION", "DEFAULT_NINJA_VERSION", "DEFAULT_PKGCONFIG_VERSION")
 load("//foreign_cc/private/framework:toolchain.bzl", "register_framework_toolchains")
 load("//toolchains:built_toolchains.bzl", cmake_toolchains_src = "cmake_toolchain", "make_toolchain", "meson_toolchain", "pkgconfig_toolchain", ninja_toolchains_src = "ninja_toolchain")
 load("//toolchains:prebuilt_toolchains.bzl", "cmake_toolchains", "ninja_toolchains")
@@ -35,8 +35,8 @@ def _init(module_ctx):
     for mod in module_ctx.modules:
         if mod.is_root:
             for toolchain in mod.tags.cmake:
-                cmake_toolchains_src(toolchain.version, register_toolchains = False)
                 cmake_toolchains(toolchain.version, register_toolchains = False)
+                cmake_toolchains_src(toolchain.version, register_toolchains = False)
                 cmake_registered = True
 
             for toolchain in mod.tags.make:
@@ -57,8 +57,8 @@ def _init(module_ctx):
                 pkgconfig_registered = True
 
     if not cmake_registered:
-        cmake_toolchains_src(DEFAULT_CMAKE_VERSION, register_toolchains = False)
         cmake_toolchains(DEFAULT_CMAKE_VERSION, register_toolchains = False)
+        cmake_toolchains_src(DEFAULT_CMAKE_VERSION, register_toolchains = False)
     if not make_registered:
         make_toolchain(DEFAULT_MAKE_VERSION, register_toolchains = False)
     if not meson_registered:
