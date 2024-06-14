@@ -304,7 +304,8 @@ def get_env_prelude(ctx, lib_name, data_dependencies, target_root):
     env = dict()
 
     # Add all environment variables from the cc_toolchain
-    cc_env = _correct_path_variable(get_env_vars(ctx))
+    cc_toolchain = find_cpp_toolchain(ctx)
+    cc_env = _correct_path_variable(cc_toolchain, get_env_vars(ctx))
     env.update(cc_env)
 
     # This logic mirrors XcodeLocalEnvProvider#querySdkRoot in bazel itself
@@ -326,6 +327,12 @@ def get_env_prelude(ctx, lib_name, data_dependencies, target_root):
     user_vars = expand_locations_and_make_variables(ctx, ctx.attr.env, "env", data_dependencies)
     env.update(user_vars)
 
+    if cc_toolchain.compiler == "msvc-cl":
+        if "PATH" in user_vars and "$$EXT_BUILD_ROOT$$" in user_vars["PATH"]:
+            # Convert any $$EXT_BUILD_ROOT$$ in PATH to /${EXT_BUILD_ROOT/$(printf '\072')/}.
+            # This is because PATH needs to be in unix format for MSYS2.
+            user_vars["PATH"] = user_vars["PATH"].replace("$$EXT_BUILD_ROOT$$", "/$${EXT_BUILD_ROOT/$$$(printf '\072')/}")
+
     # If user has defined a PATH variable (e.g. PATH, LD_LIBRARY_PATH, CPATH) prepend it to the existing variable
     for user_var in user_vars:
         is_existing_var = "PATH" in user_var or _is_msvc_var(user_var)
@@ -333,10 +340,12 @@ def get_env_prelude(ctx, lib_name, data_dependencies, target_root):
         if is_existing_var and cc_env.get(user_var):
             env.update({user_var: user_vars.get(user_var) + list_delimiter + cc_env.get(user_var)})
 
-    cc_toolchain = find_cpp_toolchain(ctx)
     if cc_toolchain.compiler == "msvc-cl":
         # Prepend PATH environment variable with the path to the toolchain linker, which prevents MSYS using its linker (/usr/bin/link.exe) rather than the MSVC linker (both are named "link.exe")
         linker_path = paths.dirname(cc_toolchain.ld_executable)
+        if linker_path[1] != ":":
+            linker_path = "${EXT_BUILD_ROOT/$(printf '\072')/}/" + linker_path
+
         env.update({"PATH": _normalize_path(linker_path) + ":" + env.get("PATH")})
 
     env_snippet.extend(["export {}=\"{}\"".format(key, escape_dquote_bash(val)) for key, val in env.items()])
@@ -662,12 +671,32 @@ def _print_env():
 
 def _normalize_path(path):
     # Change Windows style paths to Unix style.
-    if path[0].isalpha() and path[1] == ":":
+    if path[0].isalpha() and path[1] == ":" or path[0] == "$":
         # Change "c:\foo;d:\bar" to "/c/foo:/d/bar
         return "/" + path.replace("\\", "/").replace(":/", "/").replace(";", ":/")
     return path.replace("\\", "/").replace(";", ":")
 
-def _correct_path_variable(env):
+def _correct_path_variable(toolchain, env):
+    if toolchain.compiler == "msvc-cl":
+        # Workaround for msvc toolchain to prefix relative paths with $EXT_BUILD_ROOT
+        corrected_env = dict()
+        for key, value in env.items():
+            corrected_env[key] = value
+            if _is_msvc_var(key) or key == "PATH":
+                if key == "PATH":
+                    # '\072' is ':'. This is unsightly but we cannot use the ':' character
+                    # because we do a search and replace later on. This is required because
+                    # we need PATH to be all unix path (for MSYS2) where as other env (e.g.
+                    # INCLUDE) needs windows path (for passing as arguments to compiler).
+                    prefix = "${EXT_BUILD_ROOT/$(printf '\072')/}/"
+                else:
+                    prefix = "$EXT_BUILD_ROOT/"
+
+                # external/path becomes $EXT_BUILD_ROOT/external/path
+                path_paths = [prefix + path if path and path[1] != ":" else path for path in value.split(";")]
+                corrected_env[key] = ";".join(path_paths)
+        env = corrected_env
+
     value = env.get("PATH", "")
     if not value:
         return env
@@ -897,7 +926,8 @@ def get_foreign_cc_dep(dep):
 # consider optimization here to do not iterate both collections
 def _get_headers(compilation_info):
     include_dirs = compilation_info.system_includes.to_list() + \
-                   compilation_info.includes.to_list()
+                   compilation_info.includes.to_list() + \
+                   getattr(compilation_info, "external_includes", depset()).to_list()
 
     # do not use quote includes, currently they do not contain
     # library-specific information
