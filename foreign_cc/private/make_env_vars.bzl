@@ -31,6 +31,24 @@ def get_make_env_vars(
     return " ".join(["{}=\"{}\""
         .format(key, _join_flags_list(workspace_name, vars[key])) for key in vars])
 
+# buildifier: disable=function-docstring
+def get_ldflags_make_vars(
+        executable_ldflags_vars,
+        shared_ldflags_vars,
+        workspace_name,
+        flags,
+        user_vars,
+        deps,
+        inputs):
+    vars = _get_user_ldflags_variables(executable_ldflags_vars, shared_ldflags_vars, flags, user_vars)
+
+    deps_flags = _define_deps_flags(deps, inputs)
+    for key in vars.keys():
+        vars[key] = vars[key] + deps_flags.libs
+
+    return " ".join(["{}=\"{}\""
+        .format(key, _join_flags_list(workspace_name, vars[key])) for key in vars])
+
 def _define_deps_flags(deps, inputs):
     # It is very important to keep the order for the linker => put them into list
     lib_dirs = []
@@ -96,18 +114,10 @@ _MAKE_TOOLS = {
 }
 
 def _get_make_variables(workspace_name, tools, flags, user_env_vars, make_commands):
-    vars = {}
-
-    for flag in _MAKE_FLAGS:
-        flag_value = getattr(flags, _MAKE_FLAGS[flag])
-        if flag_value:
-            vars[flag] = flag_value
+    vars = _expand_flags(flags, _MAKE_FLAGS)
 
     # Merge flags lists
-    for user_var in user_env_vars:
-        toolchain_val = vars.get(user_var)
-        if toolchain_val:
-            vars[user_var] = toolchain_val + [user_env_vars[user_var]]
+    vars = _merge_vars_left(vars, user_env_vars)
 
     tools_dict = {}
     for tool in _MAKE_TOOLS:
@@ -137,6 +147,36 @@ def _get_make_variables(workspace_name, tools, flags, user_env_vars, make_comman
     # Do not put in the other user-defined env variables at this point as they
     # have already been exported globally by the prelude.
 
+    return vars
+
+def _get_user_ldflags_variables(
+        executable_ldflags_vars,
+        shared_ldflags_vars,
+        flags,
+        user_env_vars):
+    executable_ldflags = {var: "cxx_linker_executable" for var in executable_ldflags_vars}
+    shared_ldflags = {var: "cxx_linker_shared" for var in shared_ldflags_vars}
+
+    ldflags = {}
+    for vars in [executable_ldflags, shared_ldflags]:
+        ldflags.update(vars)
+
+    ldflags_vars = _expand_flags(flags, ldflags)
+    return _merge_vars_left(ldflags_vars, user_env_vars)
+
+def _expand_flags(flags, flags_vars):
+    vars = {}
+    for flag in flags_vars:
+        flag_value = getattr(flags, flags_vars[flag])
+        if flag_value:
+            vars[flag] = flag_value
+    return vars
+
+def _merge_vars_left(vars, vars_to_merge):
+    for key in vars_to_merge:
+        value = vars.get(key)
+        if value:
+            vars[key] = value + [vars_to_merge[key]]
     return vars
 
 def _absolutize(workspace_name, text, force = False):
