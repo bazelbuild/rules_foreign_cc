@@ -97,6 +97,14 @@ CC_EXTERNAL_RULE_ATTRIBUTES = {
         default = [],
         providers = [CcInfo],
     ),
+    "dynamic_deps": attr.label_list(
+        doc = (
+            "Same as deps but for cc_shared_library."
+        ),
+        mandatory = False,
+        default = [],
+        # providers = [CcSharedLibraryInfo],
+    ),
     "env": attr.string_dict(
         doc = (
             "Environment variables to set during the build. " +
@@ -866,6 +874,16 @@ def _define_inputs(attrs):
             bazel_system_includes += headers_info.include_dirs
             bazel_libs += _collect_libs(dep[CcInfo].linking_context)
 
+    for dynamic_dep in attrs.dynamic_deps:
+        linker_input = dynamic_dep[CcSharedLibraryInfo].linker_input
+        bazel_libs += _collect_shared_libs(linker_input)
+        linking_context = cc_common.create_linking_context(
+            linker_inputs = depset(direct = [linker_input]),
+        )
+
+        # create a new CcInfo from the CcSharedLibraryInfo linker_input
+        cc_infos.append(CcInfo(linking_context = linking_context))
+
     # Keep the order of the transitive foreign dependencies
     # (the order is important for the correct linking),
     # but filter out repeating directories
@@ -987,6 +1005,14 @@ def _collect_libs(cc_linking):
             for library in _extract_libraries(library_to_link):
                 if library:
                     libs.append(library)
+    return collections.uniq(libs)
+
+def _collect_shared_libs(cc_linker_input):
+    libs = []
+    for library_to_link in cc_linker_input.libraries:
+        for library in _extract_libraries(library_to_link):
+            if library:
+                libs.append(library)
     return collections.uniq(libs)
 
 def expand_locations_and_make_variables(ctx, unexpanded, attr_name, data):
