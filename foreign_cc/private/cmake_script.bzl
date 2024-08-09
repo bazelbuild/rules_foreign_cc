@@ -31,6 +31,9 @@ _TARGET_ARCH_PARAMS = {
     "aarch64": {
         "CMAKE_SYSTEM_PROCESSOR": "aarch64",
     },
+    "s390x": {
+        "CMAKE_SYSTEM_PROCESSOR": "s390x",
+    },
     "x86_64": {
         "CMAKE_SYSTEM_PROCESSOR": "x86_64",
     },
@@ -120,7 +123,10 @@ def create_cmake_script(
     # by setting CMAKE_SYSTEM_NAME and CMAKE_SYSTEM_PROCESSOR,
     # see https://github.com/bazelbuild/rules_foreign_cc/issues/289,
     # and https://github.com/bazelbuild/rules_foreign_cc/pull/1062
-    if target_os != host_os and target_os != "unknown":
+    if target_os == "unknown":
+        # buildifier: disable=print
+        print("target_os is unknown; please update foreign_cc/private/framework/platform.bzl and foreign_cc/private/cmake_script.bzl")
+    elif target_os != host_os:
         params.cache.update(_TARGET_OS_PARAMS.get(target_os, {}))
         params.cache.update(_TARGET_ARCH_PARAMS.get(target_arch, {}))
 
