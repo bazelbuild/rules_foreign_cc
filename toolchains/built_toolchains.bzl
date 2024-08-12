@@ -255,16 +255,12 @@ def make_toolchain(version):
 
     fail("Unsupported make version: " + str(version))
 
-def ninja_toolchain(version, register_toolchains):
-    if register_toolchains:
-        native.register_toolchains(
-            "@rules_foreign_cc//toolchains:built_ninja_toolchain",
-        )
+def ninja_toolchain(version):
     if version == "1.12.1":
         maybe(
             http_archive,
             name = "ninja_build_src",
-            build_file_content = _ALL_CONTENT,
+            build_file_content = _NINJA_BUILD_FILE_CONTENT,
             integrity = "sha256-ghvf9Io/aDvEuztvC1/nstZHz2XVKutjMoyRpsbfKFo=",
             strip_prefix = "ninja-1.12.1",
             urls = [
