@@ -259,7 +259,7 @@ def ninja_toolchain(version):
     if version == "1.12.1":
         maybe(
             http_archive,
-            name = "ninja_build_src",
+            name = "ninja_1.12.1_src",
             build_file_content = _NINJA_BUILD_FILE_CONTENT,
             integrity = "sha256-ghvf9Io/aDvEuztvC1/nstZHz2XVKutjMoyRpsbfKFo=",
             strip_prefix = "ninja-1.12.1",
