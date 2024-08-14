@@ -3,9 +3,9 @@
 SUPPORTED_CPU = [
     "aarch64",
     "s390x",
-    "x86_64",
     "wasm32",
     "wasm64",
+    "x86_64",
 ]
 
 SUPPORTED_OS = [
