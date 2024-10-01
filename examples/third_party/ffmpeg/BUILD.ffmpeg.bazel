@@ -1,0 +1,111 @@
+load("@rules_license//rules:license.bzl", "license")
+load("@rules_foreign_cc//foreign_cc:defs.bzl", "configure_make")
+
+package(
+    default_applicable_licenses = [":license"],
+    default_visibility = ["//visibility:public"],
+)
+
+exports_files(["LICENSE"])
+
+license(
+    name = "license",
+    package_name = "ffmpeg",
+    license_kinds = [
+        "@rules_license//licenses/spdx:LGPL-3.0-or-later",
+    ],
+    license_text = "LICENSE",
+    package_url = "https://github.com/FFmpeg/FFmpeg",
+)
+
+LGPL_LIBRARIES = [
+    "libavcodec",
+    "libavdevice",
+    "libavfilter",
+    "libavformat",
+    "libavutil",
+    "libswresample",
+    "libswscale",
+]
+
+LGPL_LIBRARY_VERSIONS = {
+    "libavcodec": [
+        "libavcodec.so",
+        "libavcodec.so.61",
+        "libavcodec.so.61.3.100",
+    ],
+    "libavdevice": [
+        "libavdevice.so",
+        "libavdevice.so.61",
+        "libavdevice.so.61.1.100",
+    ],
+    "libavfilter": [
+        "libavfilter.so",
+        "libavfilter.so.10",
+        "libavfilter.so.10.1.100",
+    ],
+    "libavformat": [
+        "libavformat.so",
+        "libavformat.so.61",
+        "libavformat.so.61.1.100",
+    ],
+    "libavutil": [
+        "libavutil.so",
+        "libavutil.so.59",
+        "libavutil.so.59.8.100",
+    ],
+    "libswresample": [
+        "libswresample.so",
+        "libswresample.so.5",
+        "libswresample.so.5.1.100",
+    ],
+    "libswscale": [
+        "libswscale.so",
+        "libswscale.so.8",
+        "libswscale.so.8.1.100",
+    ],
+}
+
+filegroup(
+    name = "all_srcs",
+    srcs = glob(["**"]),
+)
+
+configure_make(
+    name = "ffmpeg",
+    args = [
+        "-j4",
+    ],
+    build_data = [
+        "@yasm//:yasm_bin",
+    ],
+    configure_options = [
+        "--cc=$$EXT_BUILD_ROOT/external/toolchains_llvm~~llvm~llvm_toolchain/bin/cc_wrapper.sh",
+        "--cxx=$$EXT_BUILD_ROOT/external/toolchains_llvm~~llvm~llvm_toolchain/bin/cc_wrapper.sh",
+        "--pkg-config-flags=\"--static\"",
+        "--enable-cross-compile",
+        "--enable-shared",
+        "--disable-static",
+        "--enable-version3",
+        "--disable-debug",
+        "--enable-libaom",
+        "--enable-libsvtav1",
+        "--enable-libvpx",
+        "--enable-libdav1d",
+        "--disable-programs",
+        "--disable-doc",
+        "--disable-ffplay",
+        "--disable-ffprobe",
+    ],
+    env = {
+        "PATH": "$$PATH:$$(dirname $(execpath @yasm//:yasm_bin))",
+    },
+    lib_source = ":all_srcs",
+    out_shared_libs = [so for lib in LGPL_LIBRARIES for so in LGPL_LIBRARY_VERSIONS[lib]],
+    deps = [
+        "@libaom",
+        "@libsvtav1",
+        "@libvpx",
+        "@libdav1d",
+    ],
+)
